@@ -2,7 +2,32 @@
 
 The Future AGI web app — a React 18 + Vite SPA that talks to the Django backend in [`futureagi/`](../futureagi/).
 
-> **Setup is handled at the repo root.** `docker compose up -d` from the root starts the frontend dev server (and everything else). Pre-commit hooks are installed via `yarn install` from the repo root — see the root [`README.md`](../README.md) and [`CONTRIBUTING.md`](../CONTRIBUTING.md).
+> **Setup is handled at the repo root.** `docker compose up -d` starts the published frontend image, served by nginx. To develop with local source and hot reload, use the development overlay below. Pre-commit hooks are installed via `yarn install` from the repo root — see the root [`README.md`](../README.md) and [`CONTRIBUTING.md`](../CONTRIBUTING.md).
+
+## Local development with Docker
+
+After configuring the root `.env` as described in the root
+[`installation guide`](../INSTALLATION.md), run from the repository root:
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d --build
+```
+
+Open `http://localhost:3000` (or your configured `FRONTEND_PORT`). The overlay
+selects the frontend Dockerfile's `dev` stage, runs Vite, and bind-mounts
+`frontend/` into the container so source edits trigger hot reload. Dependencies
+live in a separate container volume; a host-side `yarn install` is not required
+for this Docker workflow.
+
+The overlay also builds the backend from local source. For frontend-only work
+against an already running backend, start just the frontend service:
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.dev.yml up -d --build --no-deps frontend
+```
+
+Set `VITE_HOST_API` in the root `.env` to the backend URL reachable from your
+browser if it differs from `http://localhost:8000`.
 
 ## Tech Stack
 
